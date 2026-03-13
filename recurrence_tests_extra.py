@@ -1,12 +1,7 @@
 import unittest
-from random import randrange
 from unittest import TestCase
 
-from networkx import Graph, grid_graph, random_unlabeled_tree, petersen_graph
-from numpy import array
-from scipy.special import stirling2
-
-from recurrence import lo, Poly, k
+from recurrence import lo, k
 from recurrence_tests import from_adjacency_list
 
 

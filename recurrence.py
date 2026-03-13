@@ -1,13 +1,11 @@
 import itertools
-import time
 from copy import copy
 from functools import cache
 from itertools import combinations
 from math import floor
 
-import networkx as nx
 
-
+# represents a polynomial of one variable called "k"
 class Poly:
     def __init__(self, cs):
         trailhead = len(cs)
@@ -29,8 +27,8 @@ class Poly:
             return Poly([other * c for c in self.cs])
         else:
             d = len(self.cs) - 1 + len(other.cs) - 1
-            zipped = list(itertools.zip_longest(self.cs, other.cs, [0]*(d+1), fillvalue=0))
-            return Poly([sum(zipped[i][0] * zipped[n-i][1] for i in range(n+1)) for n in range(d+1)])
+            zipped = list(itertools.zip_longest(self.cs, other.cs, [0] * (d + 1), fillvalue=0))
+            return Poly([sum(zipped[i][0] * zipped[n - i][1] for i in range(n + 1)) for n in range(d + 1)])
 
     def __rmul__(self, other):
         return self * other
@@ -64,6 +62,8 @@ def initialize_from_set(elems):
                      [i for i in range(len(elems))])
 
 
+# represents a set partition
+# elements of the set are first indexed, and then their indices are stored as parts
 class Partition:
     def __init__(self, to_num, from_num, parts):
         self.to_num = to_num
@@ -174,14 +174,14 @@ def lo(g, strategy=lambda g: sorted(g.nodes, key=g.degree, reverse=True)):
             different_neighbors = {w for w in ws if partition.find(v) != partition.find(w)}
             if len(same_neighbors) == 0:  # at least two neighbors should share a color with v
                 return sum(((1 if j % 2 == 0 else -1) * (j - 1) *
-                           sum((lo_helper(partition.join_many((v,) + new_same_neighbors), finished)
-                               for new_same_neighbors in combinations(different_neighbors, j)), start=zero)
-                           for j in range(2, len(different_neighbors) + 1)), start=zero)
+                            sum((lo_helper(partition.join_many((v,) + new_same_neighbors), finished)
+                                 for new_same_neighbors in combinations(different_neighbors, j)), start=zero)
+                            for j in range(2, len(different_neighbors) + 1)), start=zero)
             elif len(same_neighbors) == 1:  # at least one more neighbor should share a color with v
                 return sum((-(1 if j % 2 == 0 else -1) *
-                           sum((lo_helper(partition.join_many((v,) + new_same_neighbors), finished)
-                               for new_same_neighbors in combinations(different_neighbors, j)), start=zero)
-                           for j in range(1, len(different_neighbors) + 1)), start=zero)
+                            sum((lo_helper(partition.join_many((v,) + new_same_neighbors), finished)
+                                 for new_same_neighbors in combinations(different_neighbors, j)), start=zero)
+                            for j in range(1, len(different_neighbors) + 1)), start=zero)
             else:  # we can't assume any more neighbors share a color with v
                 return lo_helper(partition, finished.union({v})) \
                     - union_lo(partition,
@@ -189,18 +189,8 @@ def lo(g, strategy=lambda g: sorted(g.nodes, key=g.degree, reverse=True)):
                                set(combinations(different_neighbors, len(same_neighbors))).union(
                                    {(v, w) for w in different_neighbors})) \
                     + sum((-(1 if j % 2 == 0 else -1) *
-                          sum((lo_helper(partition.join_many((v,) + new_same_neighbors), finished)
-                              for new_same_neighbors in combinations(different_neighbors, j)), start=zero)
-                          for j in range(1, len(different_neighbors) + 1)), start=zero)
+                           sum((lo_helper(partition.join_many((v,) + new_same_neighbors), finished)
+                                for new_same_neighbors in combinations(different_neighbors, j)), start=zero)
+                           for j in range(1, len(different_neighbors) + 1)), start=zero)
 
     return lo_helper(*initial_values())
-
-
-# g = nx.complete_graph(4)
-# h = nx.complete_graph(4)
-# p = nx.cartesian_product(g, h)
-#
-# start = time.time()
-# print(lo(p))
-# end = time.time()
-# print(end - start)  # ~74s
